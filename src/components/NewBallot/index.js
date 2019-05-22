@@ -366,12 +366,12 @@ export class NewBallot extends React.Component {
         contractInstance.options.address,
         methodToCreateBallot(startTime, endTime),
         async tx => {
-          const events = await contractInstance.getPastEvents('BallotCreated', {
-            fromBlock: tx.blockNumber,
-            toBlock: tx.blockNumber
-          })
-          const newId = Number(events[0].returnValues.id)
-          const card = await contractsStore.getCard(newId, contractType)
+          // const events = await contractInstance.getPastEvents('BallotCreated', {
+          //   fromBlock: 1,
+          //   toBlock: 1
+          // })
+          // const newId = Number(events[0].returnValues.id)
+          const card = await contractsStore.getCard(99, contractType)
           ballotsStore.ballotCards.push(card)
 
           swal('Congratulations!', messages.BALLOT_CREATED_SUCCESS_MSG, 'success').then(result => {

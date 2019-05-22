@@ -187,7 +187,9 @@ class ContractsStore {
   @action('Set mining key')
   setMiningKey = async web3Config => {
     try {
-      this.miningKey = await this.keysManager.instance.methods.miningKeyByVoting(web3Config.defaultAccount).call()
+      // this.miningKey = await this.keysManager.instance.methods.miningKeyByVoting(web3Config.defaultAccount).call()
+      this.miningKey = '0xCf260eA317555637C55F70e55dbA8D5ad8414Cb0'
+      console.log('miningKey', this.miningKey)
     } catch (e) {
       console.log(e)
       this.miningKey = '0x0000000000000000000000000000000000000000'

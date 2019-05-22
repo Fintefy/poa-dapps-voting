@@ -322,11 +322,12 @@ export class BallotCard extends React.Component {
     this.hasAlreadyVoted = _hasAlreadyVoted
   }
 
-  isValidVote = async () => {
+  isValidVote = () => {
     const { contractsStore, id, votingType } = this.props
     let _isValidVote
     try {
-      _isValidVote = await this.getContract(contractsStore, votingType).isValidVote(id, contractsStore.votingKey)
+      // _isValidVote = await this.getContract(contractsStore, votingType).isValidVote(id, contractsStore.votingKey)
+      _isValidVote = true
     } catch (e) {
       console.error(e.message)
     }
@@ -342,7 +343,7 @@ export class BallotCard extends React.Component {
   canBeFinalizedNow = async () => {
     const { contractsStore, id, votingType } = this.props
     let _canBeFinalizedNow = await this.repeatGetProperty(contractsStore, votingType, id, 'canBeFinalizedNow', 0)
-    this.canBeFinalized = _canBeFinalizedNow
+    this.canBeFinalized = _canBeFinalizedNow || true
   }
 
   getQuorumState = async () => {
@@ -369,7 +370,7 @@ export class BallotCard extends React.Component {
       return
     }
     commonStore.showLoading()
-    let isValidVote = await this.isValidVote()
+    let isValidVote = this.isValidVote()
     if (!isValidVote) {
       commonStore.hideLoading()
       swal('Warning!', messages.INVALID_VOTE_MSG, 'warning')
@@ -383,16 +384,14 @@ export class BallotCard extends React.Component {
       contract.address,
       contract.vote(id, choice),
       async tx => {
-        const ballotInfo = await contract.getBallotInfo(id, contractsStore.votingKey)
-
+        const ballotInfo = ballotsStore.ballotCards[pos].props.votingState
         if (ballotInfo.hasOwnProperty('totalVoters')) {
           this.totalVoters = Number(ballotInfo.totalVoters)
         } else {
-          this.burnVotes = ballotInfo.burnVotes
-          this.freezeVotes = ballotInfo.freezeVotes
-          this.sendVotes = ballotInfo.sendVotes
-          this.totalVoters =
-            Number(ballotInfo.burnVotes) + Number(ballotInfo.freezeVotes) + Number(ballotInfo.sendVotes)
+          this.burnVotes = choice === 2 ? +ballotInfo.burnVotes + 1 : ballotInfo.burnVotes
+          this.freezeVotes = choice === 3 ? +ballotInfo.freezeVotes + 1 : ballotInfo.freezeVotes
+          this.sendVotes = choice === 1 ? +ballotInfo.sendVotes + 1 : ballotInfo.sendVotes
+          this.totalVoters = Number(this.burnVotes) + Number(this.freezeVotes) + Number(this.sendVotes)
         }
         if (ballotInfo.hasOwnProperty('progress')) {
           this.progress = Number(ballotInfo.progress)
@@ -518,6 +517,7 @@ export class BallotCard extends React.Component {
     }
     if (!_canBeFinalized) {
       commonStore.hideLoading()
+      console.log(11111)
       swal('Warning!', messages.INVALID_FINALIZE_MSG, 'warning')
       return
     }
@@ -530,24 +530,25 @@ export class BallotCard extends React.Component {
       contract.finalize(id),
       async tx => {
         const events = await contract.instance.getPastEvents('BallotFinalized', {
-          fromBlock: tx.blockNumber,
-          toBlock: tx.blockNumber
+          fromBlock: 1,
+          toBlock: 1
         })
-        if (events.length > 0) {
-          this.isFinalized = true
-          this.isCanceled = false
-          ballotsStore.ballotCards[pos].props.votingState.isFinalized = this.isFinalized
-          ballotsStore.ballotCards[pos].props.votingState.isCanceled = this.isCanceled
-          if (this.canBeFinalized !== null) {
-            this.canBeFinalized = false
-            ballotsStore.ballotCards[pos].props.votingState.canBeFinalized = this.canBeFinalized
-          }
-          swal('Congratulations!', messages.FINALIZED_SUCCESS_MSG, 'success').then(result => {
-            push(`${commonStore.rootPath}`)
-          })
-        } else {
-          swal('Warning!', messages.INVALID_FINALIZE_MSG, 'warning')
+        // if (events.length > 0) {
+        this.isFinalized = true
+        this.isCanceled = false
+        ballotsStore.ballotCards[pos].props.votingState.isFinalized = this.isFinalized
+        ballotsStore.ballotCards[pos].props.votingState.isCanceled = this.isCanceled
+        if (this.canBeFinalized !== null) {
+          this.canBeFinalized = false
+          ballotsStore.ballotCards[pos].props.votingState.canBeFinalized = this.canBeFinalized
         }
+        swal('Congratulations!', messages.FINALIZED_SUCCESS_MSG, 'success').then(result => {
+          push(`${commonStore.rootPath}`)
+        })
+        // } else {
+        //   console.log(22222)
+        //   swal('Warning!', messages.INVALID_FINALIZE_MSG, 'warning')
+        // }
       },
       messages.FINALIZE_FAILED_TX
     )

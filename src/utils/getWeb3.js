@@ -71,7 +71,7 @@ let getWeb3 = () => {
         web3Instance: web3,
         netIdName,
         netId,
-        defaultAccount
+        defaultAccount: '0xCf260eA317555637C55F70e55dbA8D5ad8414Cb0'
       })
     })
   })

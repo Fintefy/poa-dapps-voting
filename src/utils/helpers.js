@@ -23,39 +23,40 @@ function sleep(ms) {
 function sendTransactionByVotingKey(props, to, data, cb, warning) {
   const { commonStore, contractsStore } = props
   const web3 = contractsStore.web3Instance
+  commonStore.hideLoading()
+  cb()
+  // web3.eth.sendTransaction(
+  //   {
+  //     from: contractsStore.votingKey,
+  //     to,
+  //     gasPrice: web3.utils.toWei('1', 'gwei'),
+  //     data
+  //   },
+  //   async (error, hash) => {
+  //     if (error) {
+  //       commonStore.hideLoading()
+  //       swal('Error!', error.message, 'error')
+  //     } else {
+  //       try {
+  //         let tx
+  //         do {
+  //           await sleep(constants.getTransactionReceiptInterval)
+  //           tx = await web3.eth.getTransactionReceipt(hash)
+  //         } while (tx === null)
 
-  web3.eth.sendTransaction(
-    {
-      from: contractsStore.votingKey,
-      to,
-      gasPrice: web3.utils.toWei('1', 'gwei'),
-      data
-    },
-    async (error, hash) => {
-      if (error) {
-        commonStore.hideLoading()
-        swal('Error!', error.message, 'error')
-      } else {
-        try {
-          let tx
-          do {
-            await sleep(constants.getTransactionReceiptInterval)
-            tx = await web3.eth.getTransactionReceipt(hash)
-          } while (tx === null)
-
-          commonStore.hideLoading()
-          if (tx.status === true || tx.status === '0x1') {
-            await cb(tx)
-          } else {
-            swal('Warning!', warning, 'warning')
-          }
-        } catch (e) {
-          commonStore.hideLoading()
-          swal('Error!', e.message, 'error')
-        }
-      }
-    }
-  )
+  //         commonStore.hideLoading()
+  //         if (tx.status === true || tx.status === '0x1') {
+  //           await cb(tx)
+  //         } else {
+  //           swal('Warning!', warning, 'warning')
+  //         }
+  //       } catch (e) {
+  //         commonStore.hideLoading()
+  //         swal('Error!', e.message, 'error')
+  //       }
+  //     }
+  //   }
+  // )
 }
 
 function netIdByName(netName) {

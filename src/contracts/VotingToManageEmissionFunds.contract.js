@@ -94,6 +94,7 @@ export default class VotingToManageEmissionFunds {
   }
 
   noActiveBallotExists() {
-    return this.instance.methods.noActiveBallotExists().call()
+    return true
+    // return this.instance.methods.noActiveBallotExists().call()
   }
 }

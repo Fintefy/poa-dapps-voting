@@ -176,3 +176,11 @@ export class Ballots extends React.Component {
     )
   }
 }
+
+var str = '<p>42342352352</p>'
+
+var reg = /<p[^>]*>([^<]*)<\/p>/
+
+str.replace(reg, function($0, $1) {
+  console.log($0, $1)
+})
